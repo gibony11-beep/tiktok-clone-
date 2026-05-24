@@ -1,0 +1,72 @@
+import React, { useState, useEffect, useRef } from "react";
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { useAuth } from "@workspace/replit-auth-web";
+import {
+  useListVideos,
+  useDeleteVideo,
+  useLikeVideo,
+  getListVideosQueryKey,
+} from "@workspace/api-client-react";
+import {
+  Heart,
+  Plus,
+  VolumeX,
+  Volume2,
+  UploadCloud,
+  Loader2,
+  Trash2,
+  MessageCircle,
+  Share2,
+  X,
+  Send,
+  LogIn,
+  LogOut,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { refetchOnWindowFocus: false } },
+});
+
+interface Comment {
+  id: number;
+  videoId: number;
+  userId: string;
+  authorName: string;
+  authorImageUrl: string | null;
+  content: string;
+  createdAt: string;
+}
+
+function UploadModal({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const { toast } = useToast();
+  const qc = useQueryClient();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !file) {
+      toast({ title: "Error", description: "Title and video file are required.", variant: "destructive" });
+      return;
+    }
+    setIsUploading(true);
+    setUploadProgress(0);
+    try {
+      const formData = new FormData();UploadModal.tsx
